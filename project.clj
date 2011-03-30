@@ -4,5 +4,6 @@
                  [org.clojure/clojure-contrib "1.2.0"]
 		 [org.clojars.charles-stain/clj-facebook-graph "0.1.0"]
 		 [incanter/incanter-charts "1.2.3"]
-		 [incanter/incanter-core "1.2.3"]]
+		 [incanter/incanter-core "1.2.3"]
+		 [congomongo "0.1.3-SNAPSHOT"]]
   :dev-dependencies [[swank-clojure "1.2.0"]])

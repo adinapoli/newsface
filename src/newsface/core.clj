@@ -1,13 +1,14 @@
 (ns newsface.core
   (:use
    [clj-facebook-graph auth]
-   [clojure.contrib json])
+   [clojure.contrib json]
+   [newsface persistence])
   (:require
    [clj-facebook-graph [client :as client]]))
 
 
 
-(def *auth-token* "2227470867|2.HomsHqgDTl7W88AC68SQYQ__.3600.1301338800-1712326620|l6U7iXrJme_UEoljTomYMvKiMBc")
+(def *auth-token* "2227470867|2.1DVtNJlaGEkR36u_OgNrnw__.3600.1301504400-1712326620|ikgznoCeA1_cfD3iA6unTCaVv9I")
 
 
 (def facebook-auth {:access-token *auth-token*})
@@ -42,7 +43,10 @@
 
 
 (defn get-all-from
-  [getter hmap]
+  "Automatically populate the given map hmap with records of
+  all your friends, given a getter function. See for example
+  *all-mutual-friends*"
+  [hmap getter]
   (do
     (doseq [{id :id name :name} *friends*] (getter id))
     @hmap))
@@ -57,18 +61,16 @@
 		   "/method/friends.getMutualFriends?"
 		   "format=JSON&"
 		   "target_uid=" friend-id "&access_token=" *auth-token*)
-	previous (get @*mutual-friends-map* friend-id)]
+        previous (get @*mutual-friends-map* friend-id)]
+
     (or previous
-	(do (dosync (alter *mutual-friends-map* assoc friend-id (read-json (slurp query))))
-	    (get @*mutual-friends-map* friend-id)))))
+      (do (dosync
+        (alter *mutual-friends-map* assoc friend-id (read-json (slurp query))))
+        (get @*mutual-friends-map* friend-id)))))
 
 
-(defn get-all-mutual-friends []
-  "Returns the complete map which has as keys a friend id and as vals the
-   sequence of mutual friends. Memoized."
-  (do
-    (doseq [{id :id name :name} *friends*] (get-mutual-friends id))
-    @*mutual-friends-map*))
+(def *all-mutual-friends*
+  (get-all-from *mutual-friends-map* get-mutual-friends))
 
 
 (def *wall-count-map* (ref {}))
@@ -86,12 +88,8 @@
 	    (get @*wall-count-map* friend-id)))))
 
 
-(defn get-all-wall-posters []
-  "Returns the complete map which has as keys a friend id and as vals the
-   number of simple post to your wall of mutual friend. Memoized."
-  (do
-    (doseq [{id :id name :name} *friends*] (get-wall-post-count id))
-    @*wall-count-map*))
+(def *all-wall-posters*
+  (get-all-from *wall-count-map* get-wall-post-count))
 
 
 (def *commenters-map* (ref {}))
@@ -113,18 +111,14 @@
 	    (get @*commenters-map* friend-id)))))
 
 
-(defn get-all-commenters []
-  "Returns the complete map which has as keys a friend id and as vals the
-   number of comments posted to your wall by that friend. Memoized."
-  (do
-    (doseq [{id :id name :name} *friends*] (get-comment-count id))
-    @*commenters-map*))
+(def *all-commenters*
+  (get-all-from *commenters-map* get-comment-count))
 
 
 (def *tags-count-map* (ref {}))
 (defn get-photo-tags-count
   "Returns a map which contains the friends-id and the number of tags
-   about you in your photos."
+   about you in your photos. Memoized"
   [friend-id]
   (let [previous (get @*tags-count-map* friend-id)]
     (or previous
@@ -132,18 +126,27 @@
 	     (alter *tags-count-map* assoc friend-id
 		    (count (filter
 			    (fn [{name :name id :id}] (= id friend-id))
-			    (for [photo *photos-tags*] (get-in photo [:from]))))))
+			    (for [photo *photos-tags*] (-> photo :from))))))
 	    (get @*tags-count-map* friend-id)))))
 
 
-(defn get-all-photo-taggers []
-  "Returns the complete map which has as keys a friend id and as vals the
-   number of photos which you are tagged in. Memoized."
-  (do
-    (doseq [{name :name id :id} *friends*] (get-photo-tags-count id))
-    @*tags-count-map*))
-  
+(def *all-photo-taggers*
+     (get-all-from *tags-count-map* get-photo-tags-count))
 
 
+(def *user-profiles-map* (ref {}))
+(defn get-user-profile
+  [user-id]
+  (let [previous (get @*user-profiles-map* user-id)]
+    (or previous
+	(do (dosync
+	     (alter *user-profiles-map* assoc user-id
+		    (with-facebook-auth facebook-auth
+		      (client/get (str "https://graph.facebook.com/" user-id)
+				  {:extract :body}))))
+	    (get @*user-profiles-map* user-id)))))
 
 
+(def *my-user-profile* (get-user-profile "me"))
+(def *all-user-profiles*
+     (get-all-from *user-profiles-map* get-user-profile))
