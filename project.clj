@@ -6,4 +6,4 @@
 		 [incanter/incanter-charts "1.2.3"]
 		 [incanter/incanter-core "1.2.3"]
 		 [congomongo "0.1.3-SNAPSHOT"]]
-  :dev-dependencies [[swank-clojure "1.2.0"]])
+  :dev-dependencies [[swank-clojure "1.3.0"]])
