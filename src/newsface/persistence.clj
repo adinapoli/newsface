@@ -1,7 +1,8 @@
 (ns newsface.persistence
   (:use
    [clj-facebook-graph auth]
-   [clojure.contrib json])
+   [clojure.contrib json]
+   [ring.util codec])
   (:require
    [clj-facebook-graph [client :as client]]
    [somnium [congomongo :as congo]]))
@@ -13,6 +14,7 @@
 ;; Database structure
 ;; :friends {:name :id}
 ;; :wall
+;; :news-feed
 ;; :photos-tags
 ;; :mutual {:id :count}
 ;; :posters {:id :count}
@@ -22,7 +24,7 @@
 ;; :likers
 
 
-(def *auth-token* "2227470867|2.OLo7ATHxwDcI0J_xJxUobg__.3600.1301680800-1519479037|8J0lfemLVATwMgJaGslhU_LlrKI")
+(def *auth-token* "2227470867|2.wIM3CztmYcCOADMlRdVrQw__.3600.1301853600-1712326620|RIpbjpBvEH9H-UVBBxHXVhSmaKQ")
 
 
 (def facebook-auth {:access-token *auth-token*})
@@ -65,7 +67,9 @@
   
   ([resource-url fetch-limit]
      (take fetch-limit (with-facebook-auth facebook-auth
-			 (client/get resource-url {:extract :data :paging true})))))
+			 (client/get resource-url {:query-parameters
+						   {:limit fetch-limit}
+						   :extract :data :paging true})))))
 
 
 
@@ -88,6 +92,13 @@
 
 
 (def *wall* (fetch :wall))
+
+
+(defn get-news-feed []
+  (fetch-resource "https://graph.facebook.com/me/home" 5000))
+
+
+(def *news-feed* (fetch :news-feed))
 
 
 (defn get-all-photos-tags []
@@ -204,14 +215,14 @@
 
 
 (def ^{:private true} *tables*
-     [:friends :wall :photos-tags :mutual :posters :commenters
-      :photo-taggers :likers :friends-profiles])
+     [:friends :wall :news-feed :photos-tags :mutual :posters
+      :commenters :photo-taggers :likers :friends-profiles])
 
 
 (def ^{:private true} *fetch-functions*
-     [get-all-friends get-wall get-all-photos-tags get-all-mutual-friends
-      get-all-wall-posters get-all-commenters get-all-photo-taggers
-      get-all-likers get-all-friends-profiles])
+     [get-all-friends get-wall get-news-feed get-all-photos-tags
+      get-all-mutual-friends get-all-wall-posters get-all-commenters
+      get-all-photo-taggers get-all-likers get-all-friends-profiles])
 
 
 (defn update-repository
@@ -228,3 +239,42 @@
 				   (congo/mass-insert! key ((get table2fn key)))
 				   (print ". ")))
     (println "Done.")))
+
+
+(defn update-one
+  "Use this if you want to update only one table."
+  [table-name]
+  (println (str "Updating the " table-name " table..."))
+  (println "Deleting obsolete files...")
+  (congo/destroy! table-name {})
+  (println "Pushing new files...")
+  (let [table2fn (merge {} (zipmap *tables* *fetch-functions*))]
+    (do
+      (congo/mass-insert! table-name ((get table2fn table-name)))
+      (print ". "))
+    (println "Done.")))
+
+
+(defn fql-fetch
+  "Query the Facebook's servers trough the Facebook Query Language.
+   It takes the query to submit and returns the results in JSON format."
+  [query]
+  (let [query-url (str "https://api.facebook.com/method/fql.query?format=JSON"
+		       "&query=" query "&access_token=" *auth-token*)]
+    (try
+      (read-json (slurp query-url))
+      (catch java.io.IOException e {:error_code 400}))))
+
+
+(defn get-links-from
+  [user-id]
+  (let [fql-query "SELECT link_id,title,owner FROM link WHERE owner="]
+    (loop [response {:error_code 1}]
+      (if-not (get response :error_code)
+	response
+	(recur (fql-fetch (url-encode (str fql-query user-id))))))))
+
+
+;;{"error_code":1,"error_msg":"An unknown error occurred"}
+;;https://api.facebook.com/method/fql.query?format=JSON&query=SELECT link_id,
+;;title,summary FROM link WHERE owner=1519479037&access_token=
