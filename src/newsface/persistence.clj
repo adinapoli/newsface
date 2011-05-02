@@ -22,9 +22,10 @@
 ;; :photo-taggers {:id :count}
 ;; :friends-profiles
 ;; :likers
+;; :videos-tags
 
 
-(def *auth-token* "2227470867|2.wIM3CztmYcCOADMlRdVrQw__.3600.1301853600-1712326620|RIpbjpBvEH9H-UVBBxHXVhSmaKQ")
+(def *auth-token* "2227470867|2.T1_PyNrdUUCKgmqlsl0wFg__.3600.1304355600.0-1712326620|V6tOa8XYyR_Vbo6RL9X_jui_sXs")
 
 
 (def facebook-auth {:access-token *auth-token*})
@@ -243,16 +244,24 @@
 
 (defn update-one
   "Use this if you want to update only one table."
-  [table-name]
-  (println (str "Updating the " table-name " table..."))
-  (println "Deleting obsolete files...")
-  (congo/destroy! table-name {})
-  (println "Pushing new files...")
-  (let [table2fn (merge {} (zipmap *tables* *fetch-functions*))]
-    (do
-      (congo/mass-insert! table-name ((get table2fn table-name)))
-      (print ". "))
-    (println "Done.")))
+  ([table-name]
+     (println (str "Updating the " table-name " table..."))
+     (println "Deleting obsolete files...")
+     (congo/destroy! table-name {})
+     (println "Pushing new files...")
+     (let [table2fn (merge {} (zipmap *tables* *fetch-functions*))]
+       (do
+	 (congo/mass-insert! table-name ((get table2fn table-name)))
+	 (print ". "))
+       (println "Done.")))
+
+  ([table-name fetch-fn]
+     (println (str "Updating the " table-name " table..."))
+     (println "Deleting obsolete files...")
+     (congo/destroy! table-name {})
+     (println "Pushing new files...")
+     (congo/mass-insert! table-name (fetch-fn))
+     (println "Done.")))
 
 
 (defn fql-fetch
@@ -275,6 +284,19 @@
 	(recur (fql-fetch (url-encode (str fql-query user-id))))))))
 
 
+(defn get-links-urls-from
+  [user-id]
+  (let [fql-query "SELECT url FROM link WHERE owner="]
+    (loop [response {:error_code 1}]
+      (if-not (get response :error_code)
+	response
+	(recur (fql-fetch (url-encode (str fql-query user-id))))))))
+
+
 ;;{"error_code":1,"error_msg":"An unknown error occurred"}
 ;;https://api.facebook.com/method/fql.query?format=JSON&query=SELECT link_id,
 ;;title,summary FROM link WHERE owner=1519479037&access_token=
+
+;;Molto utile potrebbe essere fetchare solo title e url.
+;;url:null -> E' un gruppo o un link interno a FB
+;;url -> E' un video o una notizia.
