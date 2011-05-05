@@ -1,6 +1,6 @@
 (ns newsface.ranking
   (:use
-   [newsface persistence youtube] :reload))
+   [newsface persistence youtube websites] :reload))
 
 
 (def ^{:private true} *metrics*
@@ -28,6 +28,7 @@
 	   result (sort-by (fn [{id :id cnt :count}] cnt) id2rank)]
        (reverse result)))
 
+
 (defn strong-tiers-video-kw
   "Retrieve the from the top boundary strong tiers
    the youtube videos tags"
@@ -41,3 +42,11 @@
    the wall."
   []
   (update-one :videos-tags))
+
+
+(defn strong-tiers-site-kw
+  "Retrieve from the top boundary strong tiers
+   the websites tags."
+  [boundary]
+  (let [top-users-id (for [{id :id cnt :count} (take boundary *strong-tiers*)] id)]
+    (println "TODO"))

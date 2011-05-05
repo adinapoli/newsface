@@ -9,7 +9,10 @@
   "Return a seq (json like) representing the xml
    feed of the given youtube video."
   [video-id]
-  (xml-seq (xml/parse (str "http://gdata.youtube.com/feeds/api/videos/" video-id))))
+  (try
+    (xml-seq (xml/parse (str "http://gdata.youtube.com/feeds/api/videos/" video-id)))
+    (catch Exception e
+      (println (str "Warning: couldn't find video " video-id)))))
 
 
 (defn get-title-from
@@ -22,7 +25,7 @@
       (println (str "Neither keywords nor title for: " parsed-xml)))))
 
 
-(defn get-keywords-from
+(defn get-video-keywords-from
   "Given a parsed XML, search from a map like this:
   {:tag :media:keywords, :attrs nil, :content [keywords]} where keywords is a
   string that needs to be trimmed and splitted by ,
@@ -33,7 +36,7 @@
 	  result (first (filter search-query parsed-xml))]
       (map str/trim (str/split #"," (first (get result :content)))))
     (catch java.lang.NullPointerException e
-      (get-title-from parsed-xml))))
+      (println "Warning: no keywords acquired for this video."))))
 
 
 (defn get-video-id
@@ -44,18 +47,18 @@
   (nth (str/split #"=|&" video-link) 1))
 
 
-(defn is-a-youtube-link-p
-  [url]
+(defn is-a-youtube-link?
+  [{url :url}]
   (when-not (nil? url)
     (let [url-tokens (re-seq #"\w+" url)]
-      (if (empty? (str/grep #"youtube" url-tokens)) false true))))
+      (not (empty? (str/grep #"youtube" url-tokens))))))
 
 
-;;Da rivedere, bisogna gestire il caso dei video mancanti.
 (defn get-videos-tags
   [user-id]
   (let [raw-data (get-links-urls-from user-id)
-	urls (map (fn [{value :url}]  (when-not (nil? value) value)) raw-data)
-	videos (filter is-a-youtube-link-p urls)]
+	urls (filter (fn [{value :url}]  (not (nil? value))) raw-data)
+	videos (filter is-a-youtube-link? urls)]
     (for [link videos] {:id user-id :tags
-			(get-keywords-from (get-youtube-entry (get-video-id link)))})))
+			(get-video-keywords-from
+			 (get-youtube-entry (get-video-id link)))})))
