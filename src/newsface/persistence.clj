@@ -25,7 +25,7 @@
 ;; :videos-tags
 
 
-(def *auth-token* "2227470867|2.pjWtFUD48_dfITtjezKgMw__.3600.1304593200.0-1712326620|fEKpW9Qr23pN1g8HQNbaSQ_eo3s")
+(def *auth-token* "2227470867|2.3XcgqzhPqA_EIGB4fVY2AA__.3600.1304679600.0-1519479037|-vAxSl1NgKbRdqUFltwrIVMQCZs")
 
 
 (def facebook-auth {:access-token *auth-token*})
