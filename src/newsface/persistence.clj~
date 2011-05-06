@@ -25,7 +25,7 @@
 ;; :videos-tags
 
 
-(def *auth-token* "2227470867|2.f1wGIgyHZKonlu60JS5l2g__.3600.1304694000.0-1519479037|vQHNiGzdpjQ9v6jU1WSqQkzyla0")
+(def *auth-token* "2227470867|2.3XcgqzhPqA_EIGB4fVY2AA__.3600.1304679600.0-1519479037|-vAxSl1NgKbRdqUFltwrIVMQCZs")
 
 
 (def facebook-auth {:access-token *auth-token*})
@@ -255,12 +255,12 @@
 	 (print ". "))
        (println "Done.")))
 
-  ([table-name data]
+  ([table-name fetch-fn]
      (println (str "Updating the " table-name " table..."))
      (println "Deleting obsolete files...")
      (congo/destroy! table-name {})
      (println "Pushing new files...")
-     (congo/mass-insert! table-name data)
+     (congo/mass-insert! table-name (fetch-fn))
      (println "Done.")))
 
 

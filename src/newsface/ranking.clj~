@@ -29,22 +29,19 @@
        (reverse result)))
 
 
-(def *boundary* 3)
-
-
 (defn strong-tiers-video-kw
   "Retrieve the from the top boundary strong tiers
    the youtube videos tags"
   [boundary]
   (let [top-users-id (for [{id :id cnt :count} (take boundary *strong-tiers*)] id)]
-    (reduce into (map get-videos-tags top-users-id))))
+    (println "TODo")))
 
 
-(defn save-video-kw
+(defn save-strong-tiers-video-kw
   "Stores inside the DB all the youtube video tags extracted from
    the wall."
   []
-  (update-one :videos-tags (strong-tiers-video-kw *boundary*)))
+  (update-one :videos-tags))
 
 
 (defn strong-tiers-site-kw
@@ -52,11 +49,4 @@
    the websites tags."
   [boundary]
   (let [top-users-id (for [{id :id cnt :count} (take boundary *strong-tiers*)] id)]
-    (reduce into (map get-websites-tags top-users-id))))
-
-
-(defn save-website-kw
-  "Stores inside the DB all the youtube video tags extracted from
-   the wall."
-  []
-  (update-one :websites-tags (strong-tiers-site-kw *boundary*)))
+    (println "TODO"))
