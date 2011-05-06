@@ -1,0 +1,113 @@
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>ClojureQL - Superior SQL integration</title>
+    <script src="/scripts/jquery.js" type="text/javascript"></script>
+    <link media="screen" type="text/css" href="/css/cql.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div class="header">
+      <a href="/">
+        <img alt="Home" nm="home" class="btn" src="/images/header.jpg" />
+      </a>
+    </div>
+    <div class="menu">
+      <a href="/">Home</a>
+      <a href="/examples.html">Examples</a>
+      <a href="/documentation.html">Documentation</a>
+      <a href="/contribute.html">Contribute</a>
+      <a href="/donate.html">Donate</a>
+    </div>
+
+    <table id="maintable">
+      <tr>
+        <td class="maintd">
+          <div class="content"><p><br />
+<img title="" alt="diagram.jpg" src="/images/diagram.jpg" />
+<br />
+ClojureQL allows you to express powerful database queries through simple, elegant, Clojure expressions. Out of the box it compiles to <strong>SQL92</strong> which ensures compatability with PostgreSQL and MySQL. </p>
+
+<p>ClojureQLs strength lies in its implementation of the primitives defined in <a href="http://en.wikipedia.org/wiki/Relational_algebra">Relational Algebra</a> which allows queries to be composed freely. </p>
+
+<p>Currently we recommend using ClojureQL alongside clojure.contrib.sql as ClojureQL does not provide any functions for schema creation/deletion.</p>
+
+<p>To include ClojureQL in your project we recommend using either <a href="http://github.com/ninjudd/cake">Cake</a> or <a href="http://github.com/technomancy/leiningen">Lein</a>. If either of those tools are unavailable it is also an option to install with Maven:</p>
+
+<h2>Cake / Lein</h2>
+
+<blockquote>
+  <p>[clojureql "1.0.0"]</p>
+</blockquote>
+
+<h2>Maven</h2>
+
+<p></p><xmp>
+<dependency>
+  <groupId>clojureql</groupId>
+  <artifactId>clojureql</artifactId>
+  <version>1.0.0</version>
+</dependency>
+</xmp></div>
+        </td>
+        <td style="width: 310px; text-align: right; vertical-align: top;">
+          <a href="/downloads/latest.jar">
+            <img alt="Download" src="/images/download.jpg" />
+          </a>
+          <br />
+          <a href="/donate.html">
+            <img alt="Donate" src="/images/donate.jpg" />
+          </a>
+          <br />
+          <a href="/contribute.html">
+            <img alt="Contribute" src="/images/contribute.jpg" />
+          </a>
+          <br />
+        </td>
+      </tr>
+    </table>
+
+
+    <div class="footer">
+      <div class="footer-wrap">
+        <div id="contact">
+          <strong>Contact</strong><br />
+          Support: <a href="http://github.com/LauJensen/clojureql/issues">Github</a>
+          <br />
+          Feedback: <a href="mailto:feedback@clojureql.org">feedback@clojureql.org</a>
+          <br /><br />
+          Site design by <a href="http://www.bestinclass.dk">Best In Class</a>
+        </div>
+        <div>
+          <strong>Pages</strong>
+          <br />
+          <a href="/">Home</a>
+          <br />
+          <a href="/donate.html">Donate</a>
+          <br />
+          <a href="/documentation.html">Documentation</a>
+          <br />
+          <a href="/contribute.html">Developer Info</a>
+          <br />
+          <a href="/examples.html">Example code</a>
+          <br />
+        </div>
+      </div>
+    </div>
+
+  </body>
+
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-11084981-4']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+</html>
+

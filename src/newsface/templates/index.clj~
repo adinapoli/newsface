@@ -1,0 +1,22 @@
+(ns newsface.templates.index
+  (:use [hiccup core page-helpers]))
+
+
+(def *css-dir* "/css/")
+(def *imgs-dir* "/imgs/")
+
+(defn index-page []
+  (html5
+    [:head
+      [:title "Newsface - Suggesting you news"]
+      (include-css (str *css-dir* "style.css"))]
+    [:body
+     [:div.header
+      [:a {:href "/"}
+       [:img {:src (str *imgs-dir* "logo.png")}]]]
+     [:div.menu
+      [:a {:href "/"} "Home"]
+      [:a {:href "/examples.html"} "Examples"]
+      [:a {:href "/"} "Documentation"]
+      [:a {:href "/"} "Contribute"]
+      [:a {:href "/"} "Donate"]]]))
