@@ -23,10 +23,15 @@
 		"It suggests you news which you may be interested in.")]]
       [:h2 "Why Newsface is different?"
        [:p (str "Newsface performs a non-invasive search inside your Facebook "
-		"profile and finds your closest friends (several metrics are"
+		"profile and finds your closest friends (several metrics are "
 		"used). Then extracts a bunch of keywords based on your "
 		"friends tastes and preferences. Finally searches the web, "
-		"bringing you news.")]]]
+		"bringing you news.")]]
+      [:h2 "May I try Newsface?"
+       [:p (str "Sure. In order to make Newsface works properly you need "
+		"to complete these steps: ")
+	[:ol
+	 [:li "Login on Facebook."]]]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact
