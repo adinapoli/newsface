@@ -13,10 +13,9 @@
        [:img {:src "/imgs/logo.png"}]]]
      [:div.menu
       [:a {:href "/"} "Home"]
-      [:a {:href "/examples.html"} "Examples"]
-      [:a {:href "/"} "Documentation"]
-      [:a {:href "/"} "Contribute"]
-      [:a {:href "/"} "Donate"]]
+      [:a {:href "/accesstoken/"} "Access Token"]
+      [:a {:href "/suggest/"} "Try it!"]
+      [:a {:href "/contacts/"} "Contacts"]]
      [:div.content
       [:h2 "What is Newsface?"
        [:p (str "Newsface [News from Facebook] is a news raccomender tool."
@@ -32,8 +31,8 @@
 		"to complete these steps: ")
 	[:ol
 	 [:li "Login on "[:a {:href "http://www.facebook.com"} "Facebook"]]
-	 [:li "Retrieve an " [:a {:href "/"} "access token"] " for your requests."]
-	 [:li "Let Newsface " [:a {:href "/"} "suggests"] " you news."]]]]]
+	 [:li "Retrieve an " [:a {:href "/accesstoken/"} "access token"] " for your requests."]
+	 [:li "Let Newsface " [:a {:href "/suggest/"} "suggests"] " you news."]]]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact
