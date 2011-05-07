@@ -31,7 +31,9 @@
        [:p (str "Sure. In order to make Newsface works properly you need "
 		"to complete these steps: ")
 	[:ol
-	 [:li "Login on Facebook."]]]]]
+	 [:li "Login on "[:a {:href "http://www.facebook.com"} "Facebook"]]
+	 [:li "Retrieve an " [:a {:href "/"} "access token"] " for your requests."]
+	 [:li "Let Newsface " [:a {:href "/"} "suggests"] " you news."]]]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact
