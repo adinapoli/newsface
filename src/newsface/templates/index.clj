@@ -18,7 +18,7 @@
       [:a {:href "/contacts/"} "Contacts"]]
      [:div.content
       [:h2 "What is Newsface?"
-       [:p (str "Newsface [News from Facebook] is a news raccomender tool."
+       [:p (str "Newsface [News from Facebook] is a news raccomender tool. "
 		"It suggests you news which you may be interested in.")]]
       [:h2 "Why Newsface is different?"
        [:p (str "Newsface performs a non-invasive search inside your Facebook "

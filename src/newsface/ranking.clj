@@ -20,11 +20,11 @@
 ;;- Sum(for every metric) / metrics number."
 (def *strong-tiers*
      (let [id2rank
-	   (for [{name :name id :id} *friends*]
-	     {:id id :count
-	      (float (/ (reduce + (map #(* (get (fetch-one %1 :where {:id id}) :count)
-					   (get *metrics2weights* %1)) *metrics*))
-			(count *metrics*)))})
+	   (for [{id :id name :name} *friends*]
+	     {:id id
+	      :count (float (/ (reduce + (map #(* (get (fetch-one %1 :where {:id id}) :count)
+						  (get *metrics2weights* %1)) *metrics*))
+			       (count *metrics*)))})
 	   result (sort-by (fn [{id :id cnt :count}] cnt) id2rank)]
        (reverse result)))
 
@@ -36,7 +36,7 @@
   "Retrieve the from the top boundary strong tiers
    the youtube videos tags"
   [boundary]
-  (let [top-users-id (for [{id :id cnt :count} (take boundary *strong-tiers*)] id)]
+  (let [top-users-id (map :id (take boundary *strong-tiers*))]
     (reduce into (map get-videos-tags top-users-id))))
 
 
@@ -51,7 +51,7 @@
   "Retrieve from the top boundary strong tiers
    the websites tags."
   [boundary]
-  (let [top-users-id (for [{id :id cnt :count} (take boundary *strong-tiers*)] id)]
+  (let [top-users-id (map :id (take boundary *strong-tiers*))]
     (reduce into (map get-websites-tags top-users-id))))
 
 

@@ -1,10 +1,11 @@
 (ns newsface.persistence
   (:use
-   [clj-facebook-graph auth]
+   [clj-facebook-graph.auth]
    [clojure.contrib json]
-   [ring.util codec])
+   [ring.util.codec :only [url-encode]] :reload)
   (:require
    [clj-facebook-graph [client :as client]]
+   [clojure.contrib.logging :as log]
    [somnium [congomongo :as congo]]))
 
 
@@ -23,9 +24,11 @@
 ;; :friends-profiles
 ;; :likers
 ;; :videos-tags
+;; :websites-tags
 
 
-(def *auth-token* "2227470867|2.f1wGIgyHZKonlu60JS5l2g__.3600.1304694000.0-1519479037|vQHNiGzdpjQ9v6jU1WSqQkzyla0")
+(def *auth-token* (url-encode
+		   "2227470867|2.cqLAKgq7wjHa3651huwZGg__.3600.1304877600.0-1712326620|kvvuu-IU1IAjIpG-XBT4pxUE6GE"))
 
 
 (def facebook-auth {:access-token *auth-token*})
@@ -96,7 +99,7 @@
 
 
 (defn get-news-feed []
-  (fetch-resource "https://graph.facebook.com/me/home" 5000))
+  (fetch-resource "https://graph.facebook.com/me/home" 1000))
 
 
 (def *news-feed* (fetch :news-feed))
@@ -121,7 +124,7 @@
 
 
 (defn get-all-mutual-friends []
-  (map get-mutual-friends (for [{name :name id :id} *friends*] id)))
+  (map get-mutual-friends (map :id *friends*)))
 
 
 (def *mutual-friends*
@@ -231,37 +234,37 @@
    from the Facebook database. It can be a very slow process since several
    http requests are required."
   []
-  (println "Updating repository, it can take a while...")
-  (println "Deleting obsolete files...")
+  (log/info "Updating repository, it can take a while...")
+  (log/info "Deleting obsolete files...")
   (doseq [table *tables*] (congo/destroy! table {}))
-  (println "Pushing new files...")
+  (log/info "Pushing new files...")
   (let [table2fn (merge {} (zipmap *tables* *fetch-functions*))]
     (doseq [key (keys table2fn)] (do
 				   (congo/mass-insert! key ((get table2fn key)))
-				   (print ". ")))
-    (println "Done.")))
+				   (log/info (str key " successfully populated."))))
+    (log/info "Done.")))
 
 
 (defn update-one
   "Use this if you want to update only one table."
   ([table-name]
-     (println (str "Updating the " table-name " table..."))
-     (println "Deleting obsolete files...")
+     (log/info (str "Updating the " table-name " table..."))
+     (log/info "Deleting obsolete files...")
      (congo/destroy! table-name {})
-     (println "Pushing new files...")
+     (log/info "Pushing new files...")
      (let [table2fn (merge {} (zipmap *tables* *fetch-functions*))]
        (do
 	 (congo/mass-insert! table-name ((get table2fn table-name)))
-	 (print ". "))
-       (println "Done.")))
+	 (log/info (str table-name " successfully populated.")))
+       (log/info "Done.")))
 
   ([table-name data]
-     (println (str "Updating the " table-name " table..."))
-     (println "Deleting obsolete files...")
+     (log/info (str "Updating the " table-name " table..."))
+     (log/info "Deleting obsolete files...")
      (congo/destroy! table-name {})
-     (println "Pushing new files...")
+     (log/info "Pushing new files...")
      (congo/mass-insert! table-name data)
-     (println "Done.")))
+     (log/info "Done.")))
 
 
 (defn fql-fetch

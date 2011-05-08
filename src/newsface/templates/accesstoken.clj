@@ -18,11 +18,17 @@
       [:a {:href "/contacts/"} "Contacts"]]
      [:div.content
       [:h2 "What is an Access Token?"
-       [:p (str "An access token is an alphanumerical code used by "
-		"Facebook in order to authenticate web request to "
-		"its functionality.")]]
+       [:p "An access token is an alphanumerical code used by "
+	"Facebook in order to authenticate web requests to "
+	"its functionality."]]
       [:h2 "How can I get one, and why this can't be automatic?"
-       [:p "Newsface is still in beta."]]]
+       [:p "Go to "
+	[:a {:href "http://developers.facebook.com/docs/reference/api/"}
+	 "Facebook Graph Api"] " and get it." [:br]
+	"Extract a valid access token in a non-invasive way may be "
+	"cumbersome, so the easiest way is to manually insert it. "
+	"Don't forget that Newsface is still in beta: is not impossible "
+	"that in future this feature will be turn automatic."]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact

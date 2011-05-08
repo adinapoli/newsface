@@ -38,10 +38,11 @@
   (let [raw-data (get-links-urls-from user-id)
 	urls (filter (fn [{value :url}]  (not (nil? value))) raw-data)
 	videos (filter is-a-youtube-link? urls)]
-    (for [{url :url} videos]
-      (try
-	(get-video-keywords-from (get-video-id url))
-	(catch Exception e
-	  (log/error (str "Couldn't retrieve tag from: " url)))))))
+    (filter identity
+	    (for [{url :url} videos]
+	      (try
+		(get-video-keywords-from (get-video-id url))
+		(catch Exception e
+		  (log/warn (str "Couldn't retrieve tag from: " url))))))))
 
 

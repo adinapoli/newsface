@@ -22,9 +22,9 @@
   (let [raw-data (get-links-urls-from user-id)
 	urls  (filter (fn [{value :url}]  (not (nil? value))) raw-data)
 	sites (filter #(not (is-a-youtube-link? %1)) urls)]
-    (filter map?
+    (filter identity
 	    (for [{url :url} sites]
 	      (try
 		(get-website-keywords-from url)
 		(catch Exception e
-		  (log/error (str "Couldn't extract keywords for url: "))))))))
+		  (log/warn (str "Couldn't extract keywords for url: "))))))))

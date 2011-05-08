@@ -1,6 +1,8 @@
 (ns newsface.core
   (:use compojure.core
-	[newsface.templates index contacts accesstoken]
+	[newsface.templates
+	 index contacts accesstoken
+	 notfound]
 	[hiccup.middleware :only (wrap-base-url)]
 	[ring.adapter.jetty] :reload)
   (:require [compojure.route :as route]
@@ -13,7 +15,7 @@
   (GET "/contacts/" [] (contacts-page))
   (GET "/accesstoken/" [] (accesstoken-page))
   (route/resources "/")
-  (route/not-found "Page not found"))
+  (route/not-found (not-found-page)))
 
 
 (def newsface

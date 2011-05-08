@@ -1,8 +1,8 @@
-(ns newsface.templates.contacts
+(ns newsface.templates.notfound
   (:use [hiccup core page-helpers]))
 
 
-(defn contacts-page []
+(defn not-found-page []
   (html5
     [:head
       [:title "Newsface - Suggesting you news based on your Facebook friends"]
@@ -17,13 +17,8 @@
       [:a {:href "/suggest/"} "Try it!"]
       [:a {:href "/contacts/"} "Contacts"]]
      [:div.content
-      [:h2 "Who is mantaining Newsface?"
-       [:p "Newsface is a project started within the course of "
-	[:a {:href "http://dia.uniroma3.it/~sii"}
-	 "Sistemi Intelligenti per Internet"]
-	" at \"Roma Tre\" University in Rome, Italy."]]
-      [:h2 "May I leave feedbacks?"
-       [:p "Sure. See the footer of this site for contacts."]]]
+      [:h2 "Ops..."
+       [:p "Page not found."]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact
