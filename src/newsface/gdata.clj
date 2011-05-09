@@ -1,4 +1,7 @@
 (ns newsface.gdata
+  (:use
+   [newsface ranking]
+   [ring.util.codec :only [url-encode]])
   (:require
    [net.cgrand.enlive-html :as en]))
 
@@ -27,11 +30,18 @@
 
 (defn news-search
   "Given a bunch of keywords, extract the first 10 news."
-  [keywords]
-  (let [url (str *query-url* (apply str (interpose "+" keywords)))
+  [keyword]
+  (let [url (str *query-url* (url-encode keyword)) 
 	parsed-page (en/html-resource (java.net.URL. url))
 	news (-> (en/select parsed-page [[:a (en/attr-contains :class "article")]]))]
     (filter (fn [{href :href title :title}] (not= "" title))
 	    (for [elem news]
 	      {:href  (-> elem :attrs :href)
 	       :title (-> elem :content first :content take-if-valid prettify-title)}))))
+
+
+(defn get-news
+  "Use this in your templates in order to retrieve news links."
+  []
+  (flatten (map (fn [{kw :keyword cnt :count}] (news-search kw))
+		(take 10 (get-search-keywords)))))

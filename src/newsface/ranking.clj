@@ -1,6 +1,9 @@
 (ns newsface.ranking
   (:use
-   [newsface persistence youtube websites] :reload))
+   [newsface persistence youtube websites] :reload)
+  (:require
+   [clojure.contrib.logging :as log]
+   [clojure.contrib.string :as str]))
 
 
 (def ^{:private true} *metrics*
@@ -29,7 +32,7 @@
        (reverse result)))
 
 
-(def *boundary* 3)
+(def *boundary* 5)
 
 
 (defn strong-tiers-video-kw
@@ -37,7 +40,7 @@
    the youtube videos tags"
   [boundary]
   (let [top-users-id (map :id (take boundary *strong-tiers*))]
-    (reduce into (map get-videos-tags top-users-id))))
+    (flatten (map get-videos-tags top-users-id))))
 
 
 (defn save-video-kw
@@ -52,7 +55,11 @@
    the websites tags."
   [boundary]
   (let [top-users-id (map :id (take boundary *strong-tiers*))]
-    (reduce into (map get-websites-tags top-users-id))))
+    (flatten (map get-websites-tags top-users-id))))
+
+
+(def *videos-keywords*
+     (fetch :videos-tags))
 
 
 (defn save-website-kw
@@ -60,3 +67,53 @@
    the wall."
   []
   (update-one :websites-tags (strong-tiers-site-kw *boundary*)))
+
+
+(def *websites-keywords*
+     (fetch :websites-tags))
+
+
+;; Operations to perform
+;; 1. Filter duplicates for each bunch of keywords
+;; 2. put everything into lowercase
+;; 3. Build an ordinated structure.
+(defn find-search-keywords
+  "The most important functions.
+  It processes all the keywords (either video and from websites) and
+  build a map of frequencies."
+  []
+  (let [video-kw-set (set (mapcat #(map str/lower-case (-> %1 :keywords)) *videos-keywords*))
+	sites-kw-set (set (mapcat #(map str/lower-case (-> %1 :keywords)) *websites-keywords*))
+	keywords (into (seq video-kw-set) (seq sites-kw-set))
+	freq-map (frequencies keywords)]
+    (for [entry freq-map] {:keyword (key entry) :count (val entry)})))
+
+
+(defn save-search-keywords
+  []
+  (update-one :search-keywords (find-search-keywords)))
+
+
+(def *search-keywords*
+     (fetch :search-keywords :sort {:count -1}))
+
+
+(defn get-search-keywords []
+  *search-keywords*)
+
+
+(defn train-from-scratch
+  "Helper function to train the user profile from scratch.
+   It doesn't perform any check to see if some data is already present."
+  []
+  (do
+    (log/info "Starting user profile training...")
+    (log/info "Updating Facebook resources repository...")
+    (update-repository)
+    (log/info "Updating video keywords...")
+    (save-video-kw)
+    (log/info "Updating websites keywords...")
+    (save-website-kw)
+    (log/info "Extracting search keywords...")
+    (save-search-keywords)
+    (log/info "Done.")))

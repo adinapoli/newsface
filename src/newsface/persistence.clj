@@ -6,7 +6,8 @@
   (:require
    [clj-facebook-graph [client :as client]]
    [clojure.contrib.logging :as log]
-   [somnium [congomongo :as congo]]))
+   [somnium [congomongo :as congo]]
+   [net.cgrand.enlive-html :as en]))
 
 
 ;; I wanna try to use a NoSQL DB, and since Facebook as well as MongoDB
@@ -27,11 +28,11 @@
 ;; :websites-tags
 
 
-(def *auth-token* (url-encode
-		   "2227470867|2.HLMA4YDPGWUgaMFj2V8LHg__.3600.1304931600.0-1712326620|LSoyKlW96rgtH7C_z5asJjVatJ4"))
+(def *access-token* (url-encode
+		   "2227470867|2.cWqxJ9up2sl3WIZn8E87sw__.3600.1304960400.0-1712326620|X5xHEcEH_ZZFwYQHkNkCdfoHx3Y"))
 
 
-(def facebook-auth {:access-token *auth-token*})
+(def facebook-auth {:access-token *access-token*})
 
 
 ;;The :db will be fetched/created based on the
@@ -119,7 +120,7 @@
   (let [query (str "https://api.facebook.com"
 		   "/method/friends.getMutualFriends?"
 		   "format=JSON&"
-		   "target_uid=" friend-id "&access_token=" *auth-token*)]
+		   "target_uid=" friend-id "&access_token=" *access-token*)]
     {:id friend-id :count (count (read-json (slurp query)))}))
 
 
@@ -272,7 +273,7 @@
    It takes the query to submit and returns the results in JSON format."
   [query]
   (let [query-url (str "https://api.facebook.com/method/fql.query?format=JSON"
-		       "&query=" query "&access_token=" *auth-token*)]
+		       "&query=" query "&access_token=" *access-token*)]
     (try
       (read-json (slurp query-url))
       (catch java.io.IOException e {:error_code 400}))))

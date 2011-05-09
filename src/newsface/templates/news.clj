@@ -1,6 +1,6 @@
 (ns newsface.templates.news
   (:use
-   [newsface gdata]
+   [newsface gdata ranking]
    [hiccup core page-helpers] :reload))
 
 
@@ -20,9 +20,10 @@
       [:a {:href "/suggest/"} "Try it!"]
       [:a {:href "/contacts/"} "Contacts"]]
      [:div.content
-      (for [{h :href t :title} (news-search ["Homefront"])]
-	[:ol
-	 [:li [:a {:href h} t]]])]
+      [:p
+       [:ol
+	(for [{h :href t :title} (shuffle (get-news))]
+	  [:li [:a {:href h} t]])]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact

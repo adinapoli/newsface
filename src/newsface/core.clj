@@ -1,7 +1,7 @@
 (ns newsface.core
   (:use compojure.core
 	[newsface.templates
-	 index contacts accesstoken news
+	 index contacts accesstoken news suggest
 	 notfound]
 	[hiccup.middleware :only (wrap-base-url)]
 	[ring.adapter.jetty] :reload)
@@ -14,6 +14,7 @@
   (GET "/" [] (index-page))
   (GET "/contacts/" [] (contacts-page))
   (GET "/accesstoken/" [] (accesstoken-page))
+  (GET "/suggest/" [] (suggest-page))
   (GET "/news/" [] (news-page))
   (route/resources "/")
   (route/not-found (not-found-page)))

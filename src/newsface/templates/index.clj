@@ -32,7 +32,7 @@
 	[:ol
 	 [:li "Login on "[:a {:href "http://www.facebook.com"} "Facebook"]]
 	 [:li "Retrieve an " [:a {:href "/accesstoken/"} "access token"] " for your requests."]
-	 [:li "Let Newsface " [:a {:href "/suggest/"} "suggests"] " you news."]]]]]
+	 [:li "Let Newsface " [:a {:href "/news/"} "suggests"] " you news."]]]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact
