@@ -28,7 +28,7 @@
 
 
 (def *auth-token* (url-encode
-		   "2227470867|2.cqLAKgq7wjHa3651huwZGg__.3600.1304877600.0-1712326620|kvvuu-IU1IAjIpG-XBT4pxUE6GE"))
+		   "2227470867|2.HLMA4YDPGWUgaMFj2V8LHg__.3600.1304931600.0-1712326620|LSoyKlW96rgtH7C_z5asJjVatJ4"))
 
 
 (def facebook-auth {:access-token *auth-token*})

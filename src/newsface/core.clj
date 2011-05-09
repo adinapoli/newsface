@@ -1,7 +1,7 @@
 (ns newsface.core
   (:use compojure.core
 	[newsface.templates
-	 index contacts accesstoken
+	 index contacts accesstoken news
 	 notfound]
 	[hiccup.middleware :only (wrap-base-url)]
 	[ring.adapter.jetty] :reload)
@@ -14,6 +14,7 @@
   (GET "/" [] (index-page))
   (GET "/contacts/" [] (contacts-page))
   (GET "/accesstoken/" [] (accesstoken-page))
+  (GET "/news/" [] (news-page))
   (route/resources "/")
   (route/not-found (not-found-page)))
 
@@ -23,8 +24,8 @@
       (wrap-base-url)))
 
 
-(defonce server (run-jetty #'newsface {:port 8080
-				       :join? false}))
+;;(defonce server (run-jetty #'newsface {:port 8080
+;;:join? false}))
 
 
 
