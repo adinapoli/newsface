@@ -1,6 +1,6 @@
 ;;Auth key: AI39si6x3yWFQjZkkPZT_gEbr8OzTzAmr4G94J_zhRmAfU9AHWxaY1Gxhq7nLmeSALcLZlpM0uBRBsM6nw3LmpbU8KMNA0sFOQ
 (ns newsface.youtube
-  (:use [newsface persistence] :reload)
+  (:use [newsface persistence])
   (:require [clojure.contrib.string :as str]
 	    [clojure.xml :as xml]
 	    [clojure.contrib.logging :as log]

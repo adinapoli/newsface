@@ -15,23 +15,25 @@
       [:a {:href "/"} "Home"]
       [:a {:href "/accesstoken/"} "Access Token"]
       [:a {:href "/suggest/"} "Try it!"]
+      [:a {:href "/news/"} "My News"]
       [:a {:href "/contacts/"} "Contacts"]]
      [:div.content
       [:h2 "What is Newsface?"
-       [:p (str "Newsface [News from Facebook] is a news raccomender tool. "
-		"It suggests you news which you may be interested in.")]]
+       [:p "Newsface [News from Facebook] is a news raccomender tool. "
+	"It suggests you news which you may be interested in."]]
       [:h2 "Why Newsface is different?"
-       [:p (str "Newsface performs a non-invasive search inside your Facebook "
-		"profile and finds your closest friends (several metrics are "
-		"used). Then extracts a bunch of keywords based on your "
-		"friends tastes and preferences. Finally searches the web, "
-		"bringing you news.")]]
+       [:p "Newsface performs a non-invasive search inside your Facebook "
+	"profile and finds your closest friends (several metrics are "
+	"used). Then extracts a bunch of keywords based on your "
+	"friends tastes and preferences. Finally searches the web, "
+	"bringing you news."]]
       [:h2 "May I try Newsface?"
-       [:p (str "Sure. In order to make Newsface works properly you need "
-		"to complete these steps: ")
+       [:p "Sure. In order to make Newsface works properly you need "
+	"to complete these steps: "
 	[:ol
 	 [:li "Login on "[:a {:href "http://www.facebook.com"} "Facebook"]]
 	 [:li "Retrieve an " [:a {:href "/accesstoken/"} "access token"] " for your requests."]
+	 [:li [:a {:href "/suggest/"} "Train"] " the system."]
 	 [:li "Let Newsface " [:a {:href "/news/"} "suggests"] " you news."]]]]]
      [:div.footer
       [:div.footer-wrap

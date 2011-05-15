@@ -4,6 +4,10 @@
    [hiccup core page-helpers] :reload))
 
 
+(def *news*
+     (shuffle (get-news)))
+
+
 (defn news-page []
   (html5
     [:head
@@ -18,12 +22,16 @@
       [:a {:href "/"} "Home"]
       [:a {:href "/accesstoken/"} "Access Token"]
       [:a {:href "/suggest/"} "Try it!"]
+      [:a {:href "/news/"} "My News"]
       [:a {:href "/contacts/"} "Contacts"]]
      [:div.content
-      [:p
-       [:ol
-	(for [{h :href t :title} (shuffle (get-news))]
-	  [:li [:a {:href h} t]])]]]
+      [:h2 "Your news"
+       [:p "Here are your suggested news. "
+	"Are you curious how this news have been suggested? Click "
+	[:a {:href "/stats/"} "here"] "." [:br]
+	[:ol
+	 (for [{h :href t :title} *news*]
+	   [:li [:a {:href h} t]])]]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact

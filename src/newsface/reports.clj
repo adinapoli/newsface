@@ -4,13 +4,24 @@
    [incanter core charts stats] :reload))
 
 
-(defn view-metric
-  "Display a bar chart with the top ten results according to the given metric."
-  ([seq title]
+(defn get-graph
+  "Return an Incanter's graph object."
+  [seq title]
   (let [domain (take 10 seq)
         x-axes (for [{id :id cnt :count} domain] (get-friend-name id))
         y-axes (for [{id :id cnt :count} domain] cnt)]
-    (view  (bar-chart x-axes y-axes :title title)))))
+    (bar-chart x-axes y-axes :title title)))
+
+
+(defn save-graph-to
+  [graph filename dir width]
+  (save graph (str dir filename) :width width))
+
+
+(defn view-metric
+  "Display a bar chart with the top ten results according to the given metric."
+  [seq title]
+  (view  (get-graph seq title)))
 
 
 (defn view-top-ten-mutuals
@@ -51,4 +62,4 @@
 (defn view-top-ten
   "Show an histogram representing the top ten strong tiers."
   []
-  (view-metric *strong-tiers* "Top 10 Strong Tiers"))
+  (view-metric (strong-tiers) "Top 10 Strong Tiers"))

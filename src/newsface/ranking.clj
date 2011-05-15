@@ -1,6 +1,6 @@
 (ns newsface.ranking
   (:use
-   [newsface persistence youtube websites] :reload)
+   [newsface persistence youtube websites])
   (:require
    [clojure.contrib.logging :as log]
    [clojure.contrib.string :as str]))
@@ -18,18 +18,21 @@
      (zipmap *metrics* *metrics-weights*))
 
 
-;;Represent a sequence of the strong tiers for the given user.
 ;;Let X be a user to rank, then rnk(X) is:
-;;- Sum(for every metric) / metrics number."
-(def *strong-tiers*
-     (let [id2rank
-	   (for [{id :id name :name} *friends*]
-	     {:id id
-	      :count (float (/ (reduce + (map #(* (get (fetch-one %1 :where {:id id}) :count)
-						  (get *metrics2weights* %1)) *metrics*))
-			       (count *metrics*)))})
-	   result (sort-by (fn [{id :id cnt :count}] cnt) id2rank)]
-       (reverse result)))
+;;  Sum(for every metric) / metrics number."
+(defn rank-user
+  [user-id]
+  (float (/ (reduce + (map #(* (get (fetch-one %1 :where {:id user-id}) :count)
+			       (get *metrics2weights* %1)) *metrics*))
+	    (count *metrics*))))
+
+
+;;Represent a sequence of the strong tiers for the given user.
+(defn strong-tiers
+  []
+  (let [id2rank (for [{id :id name :name} *friends*] {:id id :count (rank-user id)})
+	result (sort-by (fn [{id :id cnt :count}] cnt) id2rank)]
+    (reverse result)))
 
 
 (def *boundary* 5)
@@ -39,7 +42,7 @@
   "Retrieve the from the top boundary strong tiers
    the youtube videos tags"
   [boundary]
-  (let [top-users-id (map :id (take boundary *strong-tiers*))]
+  (let [top-users-id (map :id (take boundary (strong-tiers)))]
     (flatten (map get-videos-tags top-users-id))))
 
 
@@ -54,7 +57,7 @@
   "Retrieve from the top boundary strong tiers
    the websites tags."
   [boundary]
-  (let [top-users-id (map :id (take boundary *strong-tiers*))]
+  (let [top-users-id (map :id (take boundary (strong-tiers)))]
     (flatten (map get-websites-tags top-users-id))))
 
 

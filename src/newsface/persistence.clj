@@ -29,7 +29,7 @@
 
 
 (def *access-token* (url-encode
-		   "2227470867|2.cWqxJ9up2sl3WIZn8E87sw__.3600.1304960400.0-1712326620|X5xHEcEH_ZZFwYQHkNkCdfoHx3Y"))
+		   "2227470867|2.xhxkup2CfuGlKFzyao9HUg__.3600.1305453600.0-1712326620|Qs6sTJjtilLWP3u9HkaHzpcoKaA"))
 
 
 (def facebook-auth {:access-token *access-token*})
@@ -240,9 +240,10 @@
   (doseq [table *tables*] (congo/destroy! table {}))
   (log/info "Pushing new files...")
   (let [table2fn (merge {} (zipmap *tables* *fetch-functions*))]
-    (doseq [key (keys table2fn)] (do
-				   (congo/mass-insert! key ((get table2fn key)))
-				   (log/info (str key " successfully populated."))))
+    (doseq [table *tables*]
+      (do
+	(congo/mass-insert! table ((get table2fn table)))
+	(log/info (str table " successfully populated."))))
     (log/info "Done.")))
 
 

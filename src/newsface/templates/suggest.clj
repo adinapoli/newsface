@@ -15,6 +15,7 @@
       [:a {:href "/"} "Home"]
       [:a {:href "/accesstoken/"} "Access Token"]
       [:a {:href "/suggest/"} "Try it!"]
+      [:a {:href "/news/"} "My News"]
       [:a {:href "/contacts/"} "Contacts"]]
      [:div.content
       [:h2 "Try Newsface!"
