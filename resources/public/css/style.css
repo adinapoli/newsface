@@ -75,6 +75,10 @@ div.content {
     margin: auto auto;
 }
 
+div.loading {
+    display:none;
+}
+
 div.content img {
     margin:           auto auto;
     text-align:       center;

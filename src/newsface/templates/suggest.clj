@@ -1,12 +1,20 @@
 (ns newsface.templates.suggest
-  (:use [hiccup core page-helpers]))
+  (:use [hiccup core page-helpers]
+	[com.reasonr.scriptjure :only (js)]))
 
 
 (defn suggest-page []
   (html5
     [:head
       [:title "Newsface - Suggesting you news based on your Facebook friends"]
-      (include-css "/css/style.css")]
+     (include-css "/css/style.css")
+     [:script {:language "text/javascript" :src "/js/jquery.js"}]
+     [:script {:language "text/javascript"}
+      (js (.ready ($ :document)
+		  (fn []
+		    (.click ($ "#kitty")
+			    (fn []
+			      (alert "Hi"))))))]]
     [:body
      [:div.header
       [:a {:href "/"}
@@ -30,8 +38,11 @@
 	 [:li "Number of resources on your Facebook profile"]
 	 [:li "Number of resources from your strong tiers"]
 	 [:li "Completeness of tags associated with the resources mentioned above."]]
-	[:a {:href "/train/"}
-	 [:img {:src "/imgs/train_btn.png"}]]]]]
+	[:div.train
+	 [:a {:href "" :id "kitty"}
+	  [:img {:src "/imgs/train_btn.png"}]]]
+	[:div.loading
+	 [:img {:src "/imgs/loading.gif"}]]]]]
      [:div.footer
       [:div.footer-wrap
        [:div.contact

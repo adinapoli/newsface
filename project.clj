@@ -8,7 +8,8 @@
 		 [congomongo "0.1.3-SNAPSHOT"]
 		 [enlive "1.0.0"]
 		 [compojure "0.6.3"]
-		 [hiccup "0.3.5"]]
+		 [hiccup "0.3.5"]
+		 [scriptjure "0.1.22"]]
   :dev-dependencies [[swank-clojure "1.3.0"]
 		             [lein-ring "0.3.2"]]
   :ring {:handler newsface.core/newsface})

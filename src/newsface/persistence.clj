@@ -28,21 +28,32 @@
 ;; :websites-tags
 
 
-(def *access-token* (url-encode
-		   "2227470867|2.xhxkup2CfuGlKFzyao9HUg__.3600.1305453600.0-1712326620|Qs6sTJjtilLWP3u9HkaHzpcoKaA"))
-
-
-(def facebook-auth {:access-token *access-token*})
+;;facebook-auth must be a map {:access-token token}
+(def facebook-auth (ref nil))
 
 
 ;;The :db will be fetched/created based on the
 ;;current user of this FB session.
-(def *current-user-id*
-     (with-facebook-auth facebook-auth
-       (client/get "https://graph.facebook.com/me" {:extract :id})))
+(def *current-user-id* (ref nil))
 
 
-(congo/mongo! :db (str "newsface-" *current-user-id*))
+(def *my-user-profile* (ref nil))
+
+
+(defn get-user-id
+  []
+  (with-facebook-auth @facebook-auth
+    (client/get "https://graph.facebook.com/me" {:extract :id})))
+
+
+(defn get-user-profile
+  [user-id]
+  (with-facebook-auth @facebook-auth
+    (client/get (str "https://graph.facebook.com/" user-id) {:extract :body})))
+
+
+(when @*current-user-id*
+ (congo/mongo! :db (str "newsface-" @*current-user-id*)))
 
 
 (def fetch congo/fetch)
@@ -67,11 +78,11 @@
   "Fetch the given resource from facebook. The resource consists in a
    valid URL to fetch from."
   ([resource-url]
-     (with-facebook-auth facebook-auth
+     (with-facebook-auth @facebook-auth
        (client/get resource-url {:extract :data})))
   
   ([resource-url fetch-limit]
-     (take fetch-limit (with-facebook-auth facebook-auth
+     (take fetch-limit (with-facebook-auth @facebook-auth
 			 (client/get resource-url {:query-parameters
 						   {:limit fetch-limit}
 						   :extract :data :paging true})))))
@@ -82,7 +93,10 @@
   (fetch-resource "https://graph.facebook.com/me/friends"))
 
 
-(def *friends* (fetch :friends))
+(def *friends*
+     (if @*current-user-id*
+       (ref (fetch :friends))
+       (ref nil)))
 
 
 (defn get-friend-name
@@ -96,40 +110,52 @@
   (fetch-resource "https://graph.facebook.com/me/feed" 1000))
 
 
-(def *wall* (fetch :wall))
+(def *wall*
+     (if @*current-user-id*
+       (ref (fetch :wall))
+       (ref nil)))
 
 
 (defn get-news-feed []
   (fetch-resource "https://graph.facebook.com/me/home" 1000))
 
 
-(def *news-feed* (fetch :news-feed))
+(def *news-feed*
+     (if @*current-user-id*
+       (ref (fetch :news-feed))
+       (ref nil)))
 
 
 (defn get-all-photos-tags []
   (fetch-resource "https://graph.facebook.com/me/photos" 1000))
 
 
-(def *photos-tags* (fetch :photos-tags))
+(def *photos-tags*
+     (if @*current-user-id*
+       (ref (fetch :photos-tags))
+       (ref nil)))
 
 
 (defn get-mutual-friends
   "Returns a map which contains the friends-id and the mutual friends count
    This method uses the old REST API."
   [friend-id]
-  (let [query (str "https://api.facebook.com"
+  (let [access-token (get @facebook-auth :access-token)
+	query (str "https://api.facebook.com"
 		   "/method/friends.getMutualFriends?"
 		   "format=JSON&"
-		   "target_uid=" friend-id "&access_token=" *access-token*)]
+		   "target_uid=" friend-id "&access_token=" access-token)]
     {:id friend-id :count (count (read-json (slurp query)))}))
 
 
 (defn get-all-mutual-friends []
-  (map get-mutual-friends (map :id *friends*)))
+  (map get-mutual-friends (map :id @*friends*)))
 
 
 (def *mutual-friends*
-     (fetch :mutual :sort {:count -1}))
+     (if @*current-user-id*
+       (ref (fetch :mutual :sort {:count -1}))
+       (ref nil)))
 
 
 (defn get-wall-post-count
@@ -138,15 +164,17 @@
   [friend-id]
   {:id friend-id :count (count (filter
 				(fn [{name :name id :id}] (= id friend-id))
-				(for [post *wall*] (get-in post [:from]))))})
+				(for [post @*wall*] (get-in post [:from]))))})
 
 
 (defn get-all-wall-posters []
-  (map get-wall-post-count (for [{name :name id :id} *friends*] id)))
+  (map get-wall-post-count (for [{name :name id :id} @*friends*] id)))
 
 
 (def *wall-posters*
-     (fetch :posters :sort {:count -1}))
+     (if @*current-user-id*
+       (ref (fetch :posters :sort {:count -1}))
+       (ref nil)))
 
 
 (defn get-comment-count
@@ -158,16 +186,18 @@
 				 ;;Nested for (sorry :S ). The inner for search
 				 ;;for comments, the outer returns a map of maps {:name :id}
 				 (for [entry
-				       (flatten (for [entry *wall*] (get-in entry [:comments :data])))]
+				       (flatten (for [entry @*wall*] (get-in entry [:comments :data])))]
 				   (get-in entry [:from]))))})
 
 
 (defn get-all-commenters []
-  (map get-comment-count (for [{name :name id :id} *friends*] id)))
+  (map get-comment-count (for [{name :name id :id} @*friends*] id)))
 
 
 (def *commenters*
-     (fetch :commenters :sort {:count -1}))
+     (if @*current-user-id*
+       (ref (fetch :commenters :sort {:count -1}))
+       (ref nil)))
 
 
 (defn get-photo-tags-count
@@ -176,15 +206,17 @@
   [friend-id]
   {:id friend-id :count (count (filter
 				(fn [{name :name id :id}] (= id friend-id))
-				(for [photo *photos-tags*] (-> photo :from))))})
+				(for [photo @*photos-tags*] (-> photo :from))))})
 
 
 (defn get-all-photo-taggers []
-  (map get-photo-tags-count (for [{name :name id :id} *friends*] id)))
+  (map get-photo-tags-count (for [{name :name id :id} @*friends*] id)))
 
 
 (def *photo-taggers*
-     (fetch :photo-taggers :sort {:count -1}))
+     (if @*current-user-id*
+       (ref (fetch :photo-taggers :sort {:count -1}))
+       (ref nil)))
 
 
 (defn get-likes-count
@@ -195,28 +227,23 @@
 
 
 (defn get-all-likers []
-  (map get-likes-count (for [{name :name id :id} *friends*] id)))
+  (map get-likes-count (for [{name :name id :id} @*friends*] id)))
 
 
 (def *likers*
-     (fetch :likers :sort {:count -1}))
-
-
-(defn get-user-profile
-  [user-id]
-  (with-facebook-auth facebook-auth
-    (client/get (str "https://graph.facebook.com/" user-id) {:extract :body})))
-
-
-(def *my-user-profile* (get-user-profile "me"))
+     (if @*current-user-id*
+       (ref (fetch :likers :sort {:count -1}))
+       (ref nil)))
 
 
 (defn get-all-friends-profiles []
-  (map get-user-profile (for [{name :name id :id} *friends*] id)))
+  (map get-user-profile (for [{name :name id :id} @*friends*] id)))
 
 
 (def *friends-profiles*
-     (fetch :friends-profiles))
+     (if @*current-user-id*
+       (ref (fetch :friends-profiles))
+       (ref nil)))
 
 
 (def ^{:private true} *tables*
@@ -273,8 +300,9 @@
   "Query the Facebook's servers trough the Facebook Query Language.
    It takes the query to submit and returns the results in JSON format."
   [query]
-  (let [query-url (str "https://api.facebook.com/method/fql.query?format=JSON"
-		       "&query=" query "&access_token=" *access-token*)]
+  (let [access-token (get @facebook-auth :access-token)
+	query-url (str "https://api.facebook.com/method/fql.query?format=JSON"
+		       "&query=" query "&access_token=" access-token)]
     (try
       (read-json (slurp query-url))
       (catch java.io.IOException e {:error_code 400}))))
@@ -298,10 +326,32 @@
 	(recur (fql-fetch (url-encode (str fql-query user-id))))))))
 
 
-;;{"error_code":1,"error_msg":"An unknown error occurred"}
-;;https://api.facebook.com/method/fql.query?format=JSON&query=SELECT link_id,
-;;title,summary FROM link WHERE owner=1519479037&access_token=
+(defn refetch-all
+  "Refetches all the informations from the DB.
+   Used after setting the token by the web app."
+  []
+  (do
+    (congo/mongo! :db (str "newsface-" @*current-user-id*))
+    (dosync (ref-set *friends* (fetch :friends)))
+    (dosync (ref-set *wall* (fetch :wall)))
+    (dosync (ref-set *news-feed* (fetch :news-feed)))
+    (dosync (ref-set *photos-tags* (fetch :photos-tags)))
+    (dosync (ref-set *mutual-friends* (fetch :mutual :sort {:count -1})))
+    (dosync (ref-set *wall-posters* (fetch :posters :sort {:count -1})))
+    (dosync (ref-set *commenters* (fetch :commenters :sort {:count -1})))
+    (dosync (ref-set *photo-taggers* (fetch :photo-taggers :sort {:count -1})))
+    (dosync (ref-set *likers* (fetch :likers :sort {:count -1})))
+    (dosync (ref-set *friends-profiles* (fetch :friends-profiles)))))
 
-;;Molto utile potrebbe essere fetchare solo title e url.
-;;url:null -> E' un gruppo o un link interno a FB
-;;url -> E' un video o una notizia.
+
+(defn set-access-token
+  [token]
+  (do
+    (log/info "Setting token..")
+    (dosync (ref-set facebook-auth {:access-token (url-encode token)}))
+    (dosync (ref-set *current-user-id* (get-user-id)))
+    (dosync (ref-set *my-user-profile* (get-user-profile "me")))
+    (log/info "Token set.")
+    (log/info "Re-Fetching informations..")
+    (refetch-all)
+    (log/info "Done.")))

@@ -10,7 +10,7 @@
   (let [domain (take 10 seq)
         x-axes (for [{id :id cnt :count} domain] (get-friend-name id))
         y-axes (for [{id :id cnt :count} domain] cnt)]
-    (bar-chart x-axes y-axes :title title)))
+    (bar-chart x-axes y-axes :title title :x-label "Friends")))
 
 
 (defn save-graph-to
@@ -28,35 +28,35 @@
   "Show an histogram representing the top ten friends according to the
    number of mutual friends."
   []
-  (view-metric *mutual-friends* "Top 10 for Mutual Friends"))
+  (view-metric @*mutual-friends* "Top 10 for Mutual Friends"))
 
 
 (defn view-top-ten-wall-posters
   "Show an histogram representing the top ten friends according to the
    number of simple post on your wall."
   []
-  (view-metric *wall-posters* "Top 10 Wall Posters"))
+  (view-metric @*wall-posters* "Top 10 Wall Posters"))
 
 
 (defn view-top-ten-photo-taggers
   "Show an histogram representing the top ten friends according to the
    number of tags in your photos."
   []
-  (view-metric *photo-taggers* "Top 10 Photo Taggers"))
+  (view-metric @*photo-taggers* "Top 10 Photo Taggers"))
 
 
 (defn view-top-ten-commenters
   "Show an histogram representing the top ten friends according to the
    comment posted on your wall."
   []
-  (view-metric *commenters* "Top 10 Commenters"))
+  (view-metric @*commenters* "Top 10 Commenters"))
 
 
 (defn view-top-ten-likers
   "Show an histogram representing the top ten friends according to
    the number of likes on your posts."
   []
-  (view-metric *likers* "Top 10 Likers"))
+  (view-metric @*likers* "Top 10 Likers"))
 
 
 (defn view-top-ten

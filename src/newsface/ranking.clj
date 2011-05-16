@@ -30,12 +30,30 @@
 ;;Represent a sequence of the strong tiers for the given user.
 (defn strong-tiers
   []
-  (let [id2rank (for [{id :id name :name} *friends*] {:id id :count (rank-user id)})
+  (let [id2rank (for [{id :id name :name} @*friends*] {:id id :count (rank-user id)})
 	result (sort-by (fn [{id :id cnt :count}] cnt) id2rank)]
     (reverse result)))
 
 
 (def *boundary* 5)
+
+
+(def *videos-keywords*
+     (if @*current-user-id*
+       (ref (fetch :videos-tags))
+       (ref nil)))
+
+
+(def *websites-keywords*
+     (if @*current-user-id*
+       (ref (fetch :websites-tags))
+       (ref nil)))
+
+
+(def *search-keywords*
+     (if @*current-user-id*
+       (ref (fetch :search-keywords :sort {:count -1}))
+       (ref nil)))
 
 
 (defn strong-tiers-video-kw
@@ -61,8 +79,6 @@
     (flatten (map get-websites-tags top-users-id))))
 
 
-(def *videos-keywords*
-     (fetch :videos-tags))
 
 
 (defn save-website-kw
@@ -70,10 +86,6 @@
    the wall."
   []
   (update-one :websites-tags (strong-tiers-site-kw *boundary*)))
-
-
-(def *websites-keywords*
-     (fetch :websites-tags))
 
 
 ;; Operations to perform
@@ -85,8 +97,8 @@
   It processes all the keywords (either video and from websites) and
   build a map of frequencies."
   []
-  (let [video-kw-set (set (mapcat #(map str/lower-case (-> %1 :keywords)) *videos-keywords*))
-	sites-kw-set (set (mapcat #(map str/lower-case (-> %1 :keywords)) *websites-keywords*))
+  (let [video-kw-set (set (mapcat #(map str/lower-case (-> %1 :keywords)) @*videos-keywords*))
+	sites-kw-set (set (mapcat #(map str/lower-case (-> %1 :keywords)) @*websites-keywords*))
 	keywords (into (seq video-kw-set) (seq sites-kw-set))
 	freq-map (frequencies keywords)]
     (for [entry freq-map] {:keyword (key entry) :count (val entry)})))
@@ -97,12 +109,23 @@
   (update-one :search-keywords (find-search-keywords)))
 
 
-(def *search-keywords*
-     (fetch :search-keywords :sort {:count -1}))
-
-
 (defn get-search-keywords []
-  *search-keywords*)
+  @*search-keywords*)
+
+
+(defn refetch-all-media
+  "Refetches all the informations from the DB.
+   Used after setting the token by the web app."
+  []
+  (do
+    (log/info "Re-fetching keywords from DB..")
+    (dosync (ref-set *videos-keywords* (fetch :videos-tags)))
+    (println @*videos-keywords*)
+    (dosync (ref-set *websites-keywords* (fetch :websites-tags)))
+    (println @*websites-keywords*)
+    (dosync (ref-set *search-keywords* (fetch :search-keywords :sort {:count -1})))
+    (println @*search-keywords*)
+    (log/info "Done.")))
 
 
 (defn train-from-scratch
