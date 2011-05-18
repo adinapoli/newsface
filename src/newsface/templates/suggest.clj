@@ -8,13 +8,14 @@
     [:head
       [:title "Newsface - Suggesting you news based on your Facebook friends"]
      (include-css "/css/style.css")
-     [:script {:language "text/javascript" :src "/js/jquery.js"}]
-     [:script {:language "text/javascript"}
+     [:script {:src "http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"}]
+     [:script
       (js (.ready ($ :document)
 		  (fn []
-		    (.click ($ "#kitty")
-			    (fn []
-			      (alert "Hi"))))))]]
+		    (.click ($ "#train-img")
+			    (fn [event]
+			      (.hide ($ :this) "slow")
+			      (.show ($ "div.loading") "slow"))))))]]
     [:body
      [:div.header
       [:a {:href "/"}
@@ -39,8 +40,8 @@
 	 [:li "Number of resources from your strong tiers"]
 	 [:li "Completeness of tags associated with the resources mentioned above."]]
 	[:div.train
-	 [:a {:href "" :id "kitty"}
-	  [:img {:src "/imgs/train_btn.png"}]]]
+	 [:a {:href "/train/"}
+	  [:img#train-img {:src "/imgs/train_btn.png"}]]]
 	[:div.loading
 	 [:img {:src "/imgs/loading.gif"}]]]]]
      [:div.footer

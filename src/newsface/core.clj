@@ -2,8 +2,8 @@
   (:use compojure.core
 	[newsface.templates
 	 index contacts accesstoken news suggest
-	 notfound stats]
-	[newsface.controllers accesstoken]
+	 notfound stats train]
+	[newsface.controllers accesstoken train]
 	[hiccup.middleware :only (wrap-base-url)]
 	[ring.adapter.jetty] :reload)
   (:require [compojure.route :as route]
@@ -18,6 +18,7 @@
   (GET  "/suggest/" [] (suggest-page))
   (GET  "/news/" [] (news-page))
   (GET  "/stats/" [] (stats-page))
+  (GET  "/train/" [] (train-request))
   (POST "/settoken/" {params :params} (set-token (str (get params :access-token)))) 
   (route/resources "/")
   (route/not-found (not-found-page)))
